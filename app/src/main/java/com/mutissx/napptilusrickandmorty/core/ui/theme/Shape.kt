@@ -1,4 +1,4 @@
-package com.mutissx.napptilusrickandmorty.ui.theme
+package com.mutissx.napptilusrickandmorty.core.ui.theme
 
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Shapes

@@ -30,7 +30,6 @@ following Clean Architecture with a reactive, `Flow`/`StateFlow`-driven UI layer
 - [Requirements](#-requirements)
 - [Building & Running](#-building--running)
 - [Running Tests](#-running-tests)
-- [What I'd Do Next](#-what-id-do-next)
 - [AI-Assisted Development](#-ai-assisted-development)
 
 ---
@@ -41,11 +40,11 @@ following Clean Architecture with a reactive, `Flow`/`StateFlow`-driven UI layer
 |---|---|
 | List every character | Paginated 2-column (adaptive) image grid — `presentation/search` |
 | Character detail | Hero image, status, species, gender, origin, location, type + episodes grouped by season — `presentation/detail` |
-| Search / filter | Debounced name search + status and gender filter chips, combinable |
+| Search / filter | Debounced name search + status and gender filter chips, combinable; locked with an offline banner while there's no connection |
 | Cache network images | Coil memory + disk cache (`RickAndMortyApp`) |
 | Response caching | OkHttp disk cache with per-endpoint TTLs **and** an offline fallback (`data/remote`) |
 | Error handling | Typed `DataError` → localizable `UiText`; full-screen, inline (next page) and per-section errors |
-| Tests | 104 JVM unit tests (MockK, Turbine, coroutines-test, Koin verify) + 25 instrumented tests (Room DAO + Compose UI) |
+| Tests | 105 JVM unit tests (MockK, Turbine, coroutines-test, Koin verify) + 28 instrumented tests (Room DAO + Compose UI) |
 | Be creative | Shared-element image transition list → detail, favourites (Room, offline) |
 
 ---
@@ -77,7 +76,8 @@ following Clean Architecture with a reactive, `Flow`/`StateFlow`-driven UI layer
 The project is one Gradle module with the layers expressed as packages. The dependency rule is
 kept by construction: `domain` has no Android/Retrofit/Room imports (only Paging's `PagingData`
 type, a pragmatic exception since it's the lingua franca for paginated streams), `presentation`
-only talks to use cases, and `data` implements the domain repository interfaces. The split to
+talks to use cases (plus the `ConnectivityObserver` contract, a platform signal with no business
+logic to wrap), and `data` implements the domain interfaces. The split to
 `:core:*` / `:feature:*` modules is mechanical from here if the app grows (each `presentation`
 subpackage becomes a feature module), but at this size it'd be build overhead with no payoff.
 
@@ -89,7 +89,7 @@ subpackage becomes a feature module), but at this size it'd be build overhead wi
   pipeline (`safeApiCall`, `DataException`) is untouched.
 * **L / I** — small repository interfaces (`CharacterRepository`, `FavoritesRepository`) that fakes
   substitute transparently in every test.
-* **D** — ViewModels depend on use cases, use cases on repository abstractions, and Koin wires the
+* **D** — ViewModels depend on use cases and domain interfaces, use cases on repository abstractions, and Koin wires the
   concrete implementations at the edge (`di/`).
 
 ### 3. Search & filtering as one reactive pipeline
@@ -100,6 +100,13 @@ Only **typing** is debounced (400 ms); clearing the field or tapping a chip is a
 and refreshes immediately. `distinctUntilChanged` avoids refetching for `"rick"` → `"rick "`.
 The grid keeps the previous results visible (with a thin progress bar) while a new filter loads,
 instead of flashing a full-screen spinner.
+
+**Offline**, a new search could only succeed if that exact filter had been cached before, so the
+screen doesn't pretend: the `ConnectivityObserver` (backed by a `ConnectivityManager`
+callback that requires a *validated* network) locks the search field and chips, keeps the
+current results on screen and shows an offline banner. Everything unlocks when the connection
+comes back. If a load still fails while online (flaky network), the stale results are replaced by
+a retryable error, so the grid never shows results that don't match the selected chips.
 
 ### 4. Handling the API's quirks in the data layer
 
@@ -165,9 +172,13 @@ flying across the screen.
 
 ```
 app/src/main/java/com/mutissx/napptilusrickandmorty/
-├── core/            # Result, DataError, safe calls, error mappers, UiText
+├── core/
+│   ├── data/        # safeApiCall/safeDbCall, error mappers
+│   ├── domain/      # Result, DataError, DataException
+│   └── ui/          # UiText, theme/ (colours, typography, shapes)
 ├── data/
 │   ├── cache/       # CharacterMemoryCache
+│   ├── connectivity/ # AndroidConnectivityObserver
 │   ├── local/       # Room: AppDatabase, FavoriteCharacterDao/Entity
 │   ├── mapper/      # DTO/Entity ⇄ domain
 │   ├── paging/      # CharacterPagingSource
@@ -175,8 +186,8 @@ app/src/main/java/com/mutissx/napptilusrickandmorty/
 │   └── repository/  # CharacterRepositoryImpl, FavoritesRepositoryImpl
 ├── di/              # Koin modules
 ├── domain/          # Models, repository contracts, use cases
-├── presentation/    # search/, detail/, favorites/, components/, navigation/
-└── ui/theme/        # Colours, typography, shapes
+└── presentation/    # search/, detail/, favorites/ (screen/, components/, state/, viewmodel/
+                     # as needed), shared components/, navigation/
 app/src/testFixtures # Fakes + builders shared by unit and instrumentation tests
 ```
 
@@ -207,8 +218,8 @@ On Windows, use `gradlew.bat` instead of `./gradlew`. No signing config is set u
 ## 🧪 Running Tests
 
 ```bash
-./gradlew testDebugUnitTest            # 104 JVM unit tests
-./gradlew connectedDebugAndroidTest    # 25 Room DAO + Compose UI tests on a device/emulator
+./gradlew testDebugUnitTest            # 105 JVM unit tests
+./gradlew connectedDebugAndroidTest    # 28 Room DAO + Compose UI tests on a device/emulator
 ```
 
 `KoinModulesTest` statically verifies the whole dependency graph, catching DI wiring mistakes at

@@ -12,11 +12,13 @@ import com.mutissx.napptilusrickandmorty.domain.model.Character
 import com.mutissx.napptilusrickandmorty.domain.model.CharacterFilter
 import com.mutissx.napptilusrickandmorty.domain.model.CharacterGender
 import com.mutissx.napptilusrickandmorty.domain.model.CharacterStatus
+import com.mutissx.napptilusrickandmorty.domain.repository.ConnectivityObserver
 import com.mutissx.napptilusrickandmorty.domain.usecase.SearchCharactersUseCase
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
@@ -24,12 +26,24 @@ import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 
 @OptIn(FlowPreview::class, ExperimentalCoroutinesApi::class)
 class SearchViewModel(
-    private val searchCharactersUseCase: SearchCharactersUseCase
+    private val searchCharactersUseCase: SearchCharactersUseCase,
+    connectivityObserver: ConnectivityObserver
 ) : ViewModel() {
+
+    // Offline, a new search could only succeed if that exact filter was cached before, so the UI
+    // keeps the current results and locks search and filters until the connection is back.
+    // Starts optimistic so the controls don't flash disabled on launch.
+    val isOnline: StateFlow<Boolean> = connectivityObserver.isOnline
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5_000),
+            initialValue = true
+        )
 
     private val _query = MutableStateFlow(EMPTY_VALUE)
     val query: StateFlow<String> = _query.asStateFlow()

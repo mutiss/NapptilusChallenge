@@ -11,6 +11,8 @@ This document discloses which AI assistants were used while building this projec
 
 ## ChatGPT
 - Asking about and checking the HTTP caching strategy (OkHttp cache and interceptors)
+- Architecture discussions
+- Generating an SVG asset for the NapptilusRickMaybe icon
 
 ## Review
 

@@ -17,7 +17,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.mutissx.napptilusrickandmorty.domain.model.CharacterStatus
-import com.mutissx.napptilusrickandmorty.ui.theme.NapptilusRickAndMortyTheme
+import com.mutissx.napptilusrickandmorty.core.ui.theme.NapptilusRickAndMortyTheme
 
 private val BadgeBackground = Color.Black.copy(alpha = 0.6f)
 

@@ -14,6 +14,7 @@ object TestTags {
     const val ERROR_VIEW = "error_view"
     const val ERROR_RETRY_BUTTON = "error_retry_button"
     const val EMPTY_VIEW_NO_RESULTS = "empty_view_no_results"
+    const val OFFLINE_BANNER = "offline_banner"
 
     const val DETAIL_BACK_BUTTON = "detail_back_button"
     const val DETAIL_LOADING_INDICATOR = "detail_loading_indicator"

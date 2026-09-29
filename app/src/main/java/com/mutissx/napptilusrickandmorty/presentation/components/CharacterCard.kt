@@ -23,7 +23,7 @@ import coil.request.ImageRequest
 import com.mutissx.napptilusrickandmorty.domain.model.Character
 import com.mutissx.napptilusrickandmorty.domain.model.CharacterGender
 import com.mutissx.napptilusrickandmorty.domain.model.CharacterStatus
-import com.mutissx.napptilusrickandmorty.ui.theme.NapptilusRickAndMortyTheme
+import com.mutissx.napptilusrickandmorty.core.ui.theme.NapptilusRickAndMortyTheme
 
 @Composable
 fun CharacterCard(
