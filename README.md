@@ -44,7 +44,7 @@ following Clean Architecture with a reactive, `Flow`/`StateFlow`-driven UI layer
 | Cache network images | Coil memory + disk cache (`RickAndMortyApp`) |
 | Response caching | OkHttp disk cache with per-endpoint TTLs **and** an offline fallback (`data/remote`) |
 | Error handling | Typed `DataError` → localizable `UiText`; full-screen, inline (next page) and per-section errors |
-| Tests | 105 JVM unit tests (MockK, Turbine, coroutines-test, Koin verify) + 28 instrumented tests (Room DAO + Compose UI) |
+| Tests | 110 JVM unit tests (MockK, Turbine, coroutines-test, Koin verify) + 28 instrumented tests (Room DAO + Compose UI) |
 | Be creative | Shared-element image transition list → detail, favourites (Room, offline) |
 
 ---
@@ -117,6 +117,10 @@ The UI never sees them:
 * `GET /episode/1` returns an **object** but `GET /episode/1,2` returns an **array** → the app uses
   the bracket form `episode/[ids]`, which always returns an array, and fetches all of a
   character's episodes in **one request**.
+* The API is **rate limited** (a burst of ~30 requests, then `429` with `Retry-After` ≈ 9 s), and
+  avatars count too, so scrolling fast used to leave cards stuck on their placeholder.
+  `RateLimitRetryInterceptor` waits out `Retry-After` (capped at 10 s, 2 retries, aborted if the
+  cell scrolls away) on both the API client and Coil's own client.
 * The literal string `"unknown"` for places is normalised to `null` so the UI shows one localized
   fallback; episode URLs are reduced to ids; unexpected enum strings fall back to `UNKNOWN`.
 
@@ -218,7 +222,7 @@ On Windows, use `gradlew.bat` instead of `./gradlew`. No signing config is set u
 ## 🧪 Running Tests
 
 ```bash
-./gradlew testDebugUnitTest            # 105 JVM unit tests
+./gradlew testDebugUnitTest            # 110 JVM unit tests
 ./gradlew connectedDebugAndroidTest    # 28 Room DAO + Compose UI tests on a device/emulator
 ```
 
