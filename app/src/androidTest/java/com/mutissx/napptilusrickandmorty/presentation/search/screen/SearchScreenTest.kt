@@ -3,6 +3,8 @@ package com.mutissx.napptilusrickandmorty.presentation.search.screen
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertIsEnabled
+import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onNodeWithTag
@@ -16,10 +18,11 @@ import com.mutissx.napptilusrickandmorty.domain.model.CharacterStatus
 import com.mutissx.napptilusrickandmorty.domain.usecase.SearchCharactersUseCase
 import com.mutissx.napptilusrickandmorty.fake.FakeCharacterPagingSource
 import com.mutissx.napptilusrickandmorty.fake.FakeCharacterRepository
+import com.mutissx.napptilusrickandmorty.fake.FakeConnectivityObserver
 import com.mutissx.napptilusrickandmorty.fake.aCharacter
 import com.mutissx.napptilusrickandmorty.presentation.components.TestTags
 import com.mutissx.napptilusrickandmorty.presentation.search.viewmodel.SearchViewModel
-import com.mutissx.napptilusrickandmorty.ui.theme.NapptilusRickAndMortyTheme
+import com.mutissx.napptilusrickandmorty.core.ui.theme.NapptilusRickAndMortyTheme
 import com.mutissx.napptilusrickandmorty.util.waitForTag
 import org.junit.Assert.assertEquals
 import org.junit.Before
@@ -34,16 +37,21 @@ class SearchScreenTest {
     val composeTestRule = createComposeRule()
 
     private lateinit var fakeRepository: FakeCharacterRepository
+    private lateinit var fakeConnectivity: FakeConnectivityObserver
     private var clickedId: Int? = null
 
     @Before
     fun setUp() {
         fakeRepository = FakeCharacterRepository()
+        fakeConnectivity = FakeConnectivityObserver()
         clickedId = null
     }
 
     private fun setContent() {
-        val viewModel = SearchViewModel(SearchCharactersUseCase(fakeRepository))
+        val viewModel = SearchViewModel(
+            SearchCharactersUseCase(fakeRepository),
+            fakeConnectivity
+        )
         composeTestRule.setContent {
             NapptilusRickAndMortyTheme {
                 SearchScreen(
@@ -108,6 +116,58 @@ class SearchScreenTest {
         composeTestRule.waitForTag(TestTags.CHARACTER_GRID)
 
         composeTestRule.onNodeWithText("Birdperson").assertIsDisplayed()
+    }
+
+    @Test
+    fun given_results_on_screen_when_a_new_filter_fails_then_the_error_replaces_the_stale_results() {
+        val results = ArrayDeque(
+            listOf(
+                Result.success(listOf(aCharacter(id = 1, name = "Rick Sanchez"))),
+                Result.failure<List<Character>>(RuntimeException("offline"))
+            )
+        )
+        fakeRepository.pagingSourceFactory = { FakeCharacterPagingSource { results.removeFirst() } }
+
+        setContent()
+        composeTestRule.waitForTag(TestTags.CHARACTER_GRID)
+        composeTestRule.onNodeWithTag(TestTags.statusChip(CharacterStatus.DEAD)).performClick()
+        composeTestRule.waitForTag(TestTags.ERROR_VIEW)
+
+        composeTestRule.onNodeWithTag(TestTags.ERROR_RETRY_BUTTON).assertIsDisplayed()
+        composeTestRule.onAllNodesWithTag(TestTags.CHARACTER_CARD).assertCountEquals(0)
+    }
+
+    @Test
+    fun given_results_on_screen_when_the_device_goes_offline_then_results_stay_and_search_and_filters_are_disabled() {
+        returning(listOf(aCharacter(id = 1, name = "Rick Sanchez")))
+        setContent()
+        composeTestRule.waitForTag(TestTags.CHARACTER_GRID)
+
+        fakeConnectivity.setOnline(false)
+        composeTestRule.waitForTag(TestTags.OFFLINE_BANNER)
+
+        composeTestRule.onNodeWithText("Rick Sanchez").assertIsDisplayed()
+        composeTestRule.onNodeWithTag(TestTags.SEARCH_TEXT_FIELD).assertIsNotEnabled()
+        composeTestRule.onNodeWithTag(TestTags.statusChip(CharacterStatus.DEAD)).assertIsNotEnabled()
+        val filtersBefore = fakeRepository.filtersReceived.size
+        composeTestRule.onNodeWithTag(TestTags.statusChip(CharacterStatus.DEAD)).performClick()
+        composeTestRule.waitForIdle()
+        assertEquals(filtersBefore, fakeRepository.filtersReceived.size)
+    }
+
+    @Test
+    fun given_the_device_is_offline_when_it_reconnects_then_the_banner_hides_and_filters_are_enabled_again() {
+        fakeConnectivity.setOnline(false)
+        setContent()
+        composeTestRule.waitForTag(TestTags.OFFLINE_BANNER)
+
+        fakeConnectivity.setOnline(true)
+        composeTestRule.waitUntil(timeoutMillis = 5_000L) {
+            composeTestRule.onAllNodesWithTag(TestTags.OFFLINE_BANNER).fetchSemanticsNodes().isEmpty()
+        }
+
+        composeTestRule.onNodeWithTag(TestTags.SEARCH_TEXT_FIELD).assertIsEnabled()
+        composeTestRule.onNodeWithTag(TestTags.statusChip(CharacterStatus.DEAD)).assertIsEnabled()
     }
 
     @Test

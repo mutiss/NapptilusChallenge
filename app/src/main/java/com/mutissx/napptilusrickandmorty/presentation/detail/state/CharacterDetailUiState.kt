@@ -1,4 +1,4 @@
-package com.mutissx.napptilusrickandmorty.presentation.detail.screen
+package com.mutissx.napptilusrickandmorty.presentation.detail.state
 
 import com.mutissx.napptilusrickandmorty.core.ui.UiText
 import com.mutissx.napptilusrickandmorty.domain.model.Character

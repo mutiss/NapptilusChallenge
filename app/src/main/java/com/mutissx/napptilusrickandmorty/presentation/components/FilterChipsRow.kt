@@ -1,4 +1,4 @@
-package com.mutissx.napptilusrickandmorty.presentation.search.screen
+package com.mutissx.napptilusrickandmorty.presentation.components
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
@@ -20,10 +20,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.mutissx.napptilusrickandmorty.domain.model.CharacterGender
 import com.mutissx.napptilusrickandmorty.domain.model.CharacterStatus
-import com.mutissx.napptilusrickandmorty.presentation.components.StatusDot
-import com.mutissx.napptilusrickandmorty.presentation.components.TestTags
-import com.mutissx.napptilusrickandmorty.presentation.components.labelRes
-import com.mutissx.napptilusrickandmorty.ui.theme.NapptilusRickAndMortyTheme
+import com.mutissx.napptilusrickandmorty.core.ui.theme.NapptilusRickAndMortyTheme
+
+private const val DISABLED_ALPHA = 0.38f
 
 @Composable
 fun FilterChipsRow(
@@ -31,7 +30,8 @@ fun FilterChipsRow(
     selectedGender: CharacterGender?,
     onStatusSelected: (CharacterStatus) -> Unit,
     onGenderSelected: (CharacterGender) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true
 ) {
     LazyRow(
         modifier = modifier
@@ -45,6 +45,7 @@ fun FilterChipsRow(
                 label = stringResource(status.labelRes),
                 selected = status == selectedStatus,
                 onClick = { onStatusSelected(status) },
+                enabled = enabled,
                 leadingIcon = { StatusDot(status = status) },
                 modifier = Modifier.testTag(TestTags.statusChip(status))
             )
@@ -62,6 +63,7 @@ fun FilterChipsRow(
                 label = stringResource(gender.labelRes),
                 selected = gender == selectedGender,
                 onClick = { onGenderSelected(gender) },
+                enabled = enabled,
                 modifier = Modifier.testTag(TestTags.genderChip(gender))
             )
         }
@@ -73,12 +75,14 @@ private fun AppFilterChip(
     label: String,
     selected: Boolean,
     onClick: () -> Unit,
+    enabled: Boolean,
     modifier: Modifier = Modifier,
     leadingIcon: (@Composable () -> Unit)? = null
 ) {
     FilterChip(
         selected = selected,
         onClick = onClick,
+        enabled = enabled,
         label = { Text(text = label, style = MaterialTheme.typography.labelLarge) },
         leadingIcon = leadingIcon,
         shape = MaterialTheme.shapes.extraLarge,
@@ -86,10 +90,12 @@ private fun AppFilterChip(
             containerColor = MaterialTheme.colorScheme.surface,
             labelColor = MaterialTheme.colorScheme.onSurface,
             selectedContainerColor = MaterialTheme.colorScheme.primary,
-            selectedLabelColor = MaterialTheme.colorScheme.onPrimary
+            selectedLabelColor = MaterialTheme.colorScheme.onPrimary,
+            // Keep the active filter recognisable while the row is locked offline.
+            disabledSelectedContainerColor = MaterialTheme.colorScheme.primary.copy(alpha = DISABLED_ALPHA)
         ),
         border = FilterChipDefaults.filterChipBorder(
-            enabled = true,
+            enabled = enabled,
             selected = selected,
             borderColor = MaterialTheme.colorScheme.outline,
             selectedBorderColor = MaterialTheme.colorScheme.primary

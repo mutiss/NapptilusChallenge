@@ -26,7 +26,7 @@ class CharacterRepositoryImpl(
             config = PagingConfig(
                 pageSize = CharacterPagingSource.PAGE_SIZE,
                 initialLoadSize = CharacterPagingSource.PAGE_SIZE,
-                prefetchDistance = PREFETCH_DISTANCE,
+                prefetchDistance = PREFETCH_DISTANCE, //Remove if we want smoother infinite scroll
                 enablePlaceholders = false
             ),
             pagingSourceFactory = { CharacterPagingSource(api, filter, memoryCache) }
@@ -44,7 +44,6 @@ class CharacterRepositoryImpl(
         }
 
     companion object {
-        // Half a page: in a 2-column grid that's ~5 rows of runway before the next request.
-        private const val PREFETCH_DISTANCE = 10
+        private const val PREFETCH_DISTANCE = 2
     }
 }

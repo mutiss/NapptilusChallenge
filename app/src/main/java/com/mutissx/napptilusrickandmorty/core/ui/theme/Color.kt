@@ -1,4 +1,4 @@
-package com.mutissx.napptilusrickandmorty.ui.theme
+package com.mutissx.napptilusrickandmorty.core.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
@@ -23,6 +23,3 @@ val OnErrorRed = Color(0xFF0B0F14)
 val StatusAlive = Color(0xFF55CC44)
 val StatusDead = Color(0xFFE5483B)
 val StatusUnknown = Color(0xFF9EA7B0)
-
-// Scrim used over artwork so white text stays legible on any avatar.
-val ImageScrim = Color(0xE6000000)

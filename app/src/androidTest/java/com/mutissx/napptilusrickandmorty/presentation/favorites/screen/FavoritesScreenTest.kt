@@ -14,7 +14,7 @@ import com.mutissx.napptilusrickandmorty.fake.FakeFavoritesRepository
 import com.mutissx.napptilusrickandmorty.fake.aCharacter
 import com.mutissx.napptilusrickandmorty.presentation.components.TestTags
 import com.mutissx.napptilusrickandmorty.presentation.favorites.viewmodel.FavoritesViewModel
-import com.mutissx.napptilusrickandmorty.ui.theme.NapptilusRickAndMortyTheme
+import com.mutissx.napptilusrickandmorty.core.ui.theme.NapptilusRickAndMortyTheme
 import com.mutissx.napptilusrickandmorty.util.waitForTag
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals

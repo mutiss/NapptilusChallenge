@@ -9,6 +9,7 @@ import com.mutissx.napptilusrickandmorty.domain.model.CharacterGender
 import com.mutissx.napptilusrickandmorty.domain.model.CharacterStatus
 import com.mutissx.napptilusrickandmorty.domain.usecase.SearchCharactersUseCase
 import com.mutissx.napptilusrickandmorty.fake.FakeCharacterRepository
+import com.mutissx.napptilusrickandmorty.fake.FakeConnectivityObserver
 import com.mutissx.napptilusrickandmorty.util.MainDispatcherRule
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.launch
@@ -18,6 +19,7 @@ import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
 import org.junit.Before
 import org.junit.Rule
@@ -30,12 +32,17 @@ class SearchViewModelTest {
     val mainDispatcherRule = MainDispatcherRule()
 
     private lateinit var fakeRepository: FakeCharacterRepository
+    private lateinit var fakeConnectivity: FakeConnectivityObserver
     private lateinit var viewModel: SearchViewModel
 
     @Before
     fun setUp() {
         fakeRepository = FakeCharacterRepository()
-        viewModel = SearchViewModel(SearchCharactersUseCase(fakeRepository))
+        fakeConnectivity = FakeConnectivityObserver()
+        viewModel = SearchViewModel(
+            SearchCharactersUseCase(fakeRepository),
+            fakeConnectivity
+        )
     }
 
     // cachedIn (Paging 3) is lazy: it only collects upstream while someone collects `results`.
@@ -211,6 +218,22 @@ class SearchViewModelTest {
 
             // Then
             assertEquals(CharacterGender.GENDERLESS, viewModel.gender.value)
+        }
+
+    // ---- connectivity ----
+
+    @Test
+    fun `given the device goes offline, when isOnline is collected, then it reports false`() =
+        runTest {
+            // Given
+            backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) { viewModel.isOnline.collect { } }
+
+            // When
+            fakeConnectivity.setOnline(false)
+            advanceUntilIdle()
+
+            // Then
+            assertFalse(viewModel.isOnline.value)
         }
 
     // ---- errorMessage ----
