@@ -5,12 +5,9 @@ import coil.ImageLoader
 import coil.ImageLoaderFactory
 import coil.disk.DiskCache
 import coil.memory.MemoryCache
-import com.mutissx.napptilusrickandmorty.di.IMAGE_HTTP_CLIENT
-import com.mutissx.napptilusrickandmorty.di.dataModule
-import com.mutissx.napptilusrickandmorty.di.databaseModule
-import com.mutissx.napptilusrickandmorty.di.domainModule
-import com.mutissx.napptilusrickandmorty.di.networkModule
-import com.mutissx.napptilusrickandmorty.di.presentationModule
+import com.mutissx.napptilusrickandmorty.core.network.di.IMAGE_HTTP_CLIENT
+import com.mutissx.napptilusrickandmorty.core.network.di.networkModule
+import com.mutissx.napptilusrickandmorty.feature.characters.di.charactersModule
 import okhttp3.OkHttpClient
 import org.koin.android.ext.android.get
 import org.koin.android.ext.koin.androidContext
@@ -30,13 +27,7 @@ class RickAndMortyApp : Application(), ImageLoaderFactory {
         startKoin {
             androidLogger(Level.ERROR)
             androidContext(this@RickAndMortyApp)
-            modules(
-                dataModule,
-                databaseModule,
-                domainModule,
-                networkModule,
-                presentationModule
-            )
+            modules(networkModule, charactersModule)
         }
     }
 
