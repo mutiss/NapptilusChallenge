@@ -24,6 +24,9 @@ import com.mutissx.napptilusrickandmorty.R
 import com.mutissx.napptilusrickandmorty.domain.model.Character
 import com.mutissx.napptilusrickandmorty.presentation.components.CharacterImage
 import com.mutissx.napptilusrickandmorty.presentation.components.StatusBadge
+import com.mutissx.napptilusrickandmorty.presentation.components.sharedCharacterScrim
+import com.mutissx.napptilusrickandmorty.presentation.components.sharedCharacterName
+import com.mutissx.napptilusrickandmorty.presentation.components.sharedCharacterStatus
 
 @Composable
 internal fun CharacterHero(
@@ -47,6 +50,7 @@ internal fun CharacterHero(
         Box(
             modifier = Modifier
                 .fillMaxSize()
+                .sharedCharacterScrim(character.id)
                 .background(
                     Brush.verticalGradient(
                         0.45f to Color.Transparent,
@@ -60,12 +64,17 @@ internal fun CharacterHero(
                 .padding(horizontal = 20.dp, vertical = 12.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            StatusBadge(status = character.status)
+            StatusBadge(
+                status = character.status,
+                modifier = Modifier.sharedCharacterStatus(character.id)
+            )
             Text(
                 text = character.name,
                 style = MaterialTheme.typography.headlineLarge,
                 color = MaterialTheme.colorScheme.onBackground,
-                modifier = Modifier.semantics { heading() }
+                modifier = Modifier
+                    .sharedCharacterName(character.id)
+                    .semantics { heading() }
             )
         }
     }
