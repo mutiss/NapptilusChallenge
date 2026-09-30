@@ -12,6 +12,6 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun favoriteCharacterDao(): FavoriteCharacterDao
 
     companion object {
-        const val DB_NAME = "rickandmorty.db"
+        const val DB_NAME = "napp_rm_characters.db"
     }
 }
