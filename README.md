@@ -44,7 +44,7 @@ following Clean Architecture with a reactive, `Flow`/`StateFlow`-driven UI layer
 | Cache network images | Coil memory + disk cache (`RickAndMortyApp`) |
 | Response caching | OkHttp disk cache with per-endpoint TTLs **and** an offline fallback (`data/remote`) |
 | Error handling | Typed `DataError` → localizable `UiText`; full-screen, inline (next page) and per-section errors |
-| Tests | 110 JVM unit tests (MockK, Turbine, coroutines-test, Koin verify) + 28 instrumented tests (Room DAO + Compose UI) |
+| Tests | 115 JVM unit tests (MockK, Turbine, coroutines-test, Koin verify) + 28 instrumented tests (Room DAO + Compose UI) |
 | Be creative | Shared-element image transition list → detail, favourites (Room, offline) |
 
 ---
@@ -53,8 +53,9 @@ following Clean Architecture with a reactive, `Flow`/`StateFlow`-driven UI layer
 
 * **Language:** Kotlin 2.2.10
 * **UI:** Jetpack Compose (BOM 2026.02.01), Material 3, Navigation Compose, shared-element transitions.
-* **Architecture:** Clean Architecture (`core` / `data` / `domain` / `presentation` / `di`) in a
-  single Gradle module, MVVM presentation layer with unidirectional data flow.
+* **Architecture:** Multi-module (`:app`, `:feature:characters`, `:core:common`, `:core:network`,
+  `:core:persistence`, `:core:ui`), Clean Architecture layers (`data` / `domain` / `presentation`)
+  inside the feature, MVVM presentation layer with unidirectional data flow.
 * **Dependency Injection:** Koin 4.0.0.
 * **Networking:** Retrofit 2.11.0 + OkHttp 4.12.0 + kotlinx.serialization.
 * **Persistence:** Room 2.7.0 (favourites).
@@ -71,15 +72,46 @@ following Clean Architecture with a reactive, `Flow`/`StateFlow`-driven UI layer
 
 ## 🏛️ Architectural & Design Decisions
 
-### 1. Single module, Clean Architecture via packages
+### 1. Multi-module, with feature-agnostic core modules
 
-The project is one Gradle module with the layers expressed as packages. The dependency rule is
-kept by construction: `domain` has no Android/Retrofit/Room imports (only Paging's `PagingData`
-type, a pragmatic exception since it's the lingua franca for paginated streams), `presentation`
-talks to use cases (plus the `ConnectivityObserver` contract, a platform signal with no business
-logic to wrap), and `data` implements the domain interfaces. The split to
-`:core:*` / `:feature:*` modules is mechanical from here if the app grows (each `presentation`
-subpackage becomes a feature module), but at this size it'd be build overhead with no payoff.
+The project is split into Gradle modules: `:app`, `:feature:characters` and four `:core` modules.
+The rule is that **core modules never know about a feature**. Features plug into them instead:
+
+| Module | Contents | How features plug in |
+|---|---|---|
+| `:core:common` (pure Kotlin) | `Result`, `DataError`, `DataException`, `ConnectivityObserver` | — |
+| `:core:network` | OkHttp clients, offline/rate-limit/cache-control interceptors, `safeApiCall`, error mapping, `AndroidConnectivityObserver` | Each feature builds its API from a shared `Retrofit.Builder` with its own base URL, and contributes `CachePolicies` (path → lifetime) that the cache interceptor collects |
+| `:core:persistence` | `safeDbCall`, local error mapping, `buildRoomDatabase` | Each feature owns its Room database, entities and DAOs |
+| `:core:ui` | Theme, `UiText` + error texts, generic loading/error/empty views, shared-transition plumbing, `TopLevelDestination` | Features declare their bottom-bar tabs and their shared-element keys |
+| `:feature:characters` | API + DTOs, favourites database, repositories, use cases, screens, ViewModels, nav graph | — |
+| `:app` | `Application` (Koin + Coil), `MainActivity`, `NavHost` + bottom bar | Hosts `charactersGraph()` and renders the features' tabs |
+
+Inside the feature, the dependency rule is kept by construction: `domain` has no
+Android/Retrofit/Room imports (only Paging's `PagingData` type, a pragmatic exception since it's
+the lingua franca for paginated streams), `presentation` talks to use cases (plus the
+`ConnectivityObserver` contract, a platform signal with no business logic to wrap), and `data`
+implements the domain interfaces. Each module's `build.gradle.kts` declares only what it uses;
+`api` is reserved for types that appear in a module's public API (e.g. `:core:ui` exposes
+`DataError`, `:core:network` exposes OkHttp/Retrofit types).
+
+**One Room database per feature.** Room needs every entity at compile time and exposes DAOs as
+methods of the `@Database` class, so a single shared database could only live in a module that
+sees every feature (`:app`), never in a core module. Instead each feature owns its database, file
+and schema, built with `:core:persistence`'s helper:
+
+```kotlin
+// e.g. a future :feature:episodes
+@Database(entities = [WatchedEpisodeEntity::class], version = 1, exportSchema = true)
+abstract class EpisodesDatabase : RoomDatabase() { /* its DAOs */ }
+
+single { androidApplication().buildRoomDatabase<EpisodesDatabase>("episodes.db") }
+```
+
+This keeps each feature's versions, migrations and schema exports independent, so adding or
+removing a feature never forces a migration on the others; the cost, one extra file and connection
+pool per feature, is negligible. A shared database is only worth it if features need cross-feature
+joins or transactions: then features would expose their DAOs through interfaces and `:app` would
+declare one `@Database` implementing them all, with a single, shared version to migrate.
 
 ### 2. SOLID in practice
 
@@ -181,24 +213,26 @@ flying across the screen.
 ## 🗂️ Project Structure
 
 ```
-app/src/main/java/com/mutissx/napptilusrickandmorty/
-├── core/
-│   ├── data/        # safeApiCall/safeDbCall, error mappers
-│   ├── domain/      # Result, DataError, DataException
-│   └── ui/          # UiText, theme/ (colours, typography, shapes)
-├── data/
-│   ├── cache/       # CharacterMemoryCache
-│   ├── connectivity/ # AndroidConnectivityObserver
-│   ├── local/       # Room: AppDatabase, FavoriteCharacterDao/Entity
-│   ├── mapper/      # DTO/Entity ⇄ domain
-│   ├── paging/      # CharacterPagingSource
-│   ├── remote/      # RickAndMortyApi, DTOs, cache interceptors
-│   └── repository/  # CharacterRepositoryImpl, FavoritesRepositoryImpl
-├── di/              # Koin modules
-├── domain/          # Models, repository contracts, use cases
-└── presentation/    # search/, detail/, favorites/ (screen/, components/, state/, viewmodel/
-                     # as needed), shared components/, navigation/
-app/src/testFixtures # Fakes + builders shared by unit and instrumentation tests
+app/                    # Application (Koin + Coil), MainActivity, NavHost + bottom bar,
+                        # all-modules Koin graph test
+core/
+├── common/             # Result, DataError, DataException, ConnectivityObserver (pure Kotlin)
+├── network/            # HTTP clients, interceptors (+ CachePolicy), safeApiCall, error mapper,
+│                       # AndroidConnectivityObserver, networkModule
+├── persistence/        # safeDbCall, local error mapper, buildRoomDatabase
+└── ui/                 # theme/, UiText + asUiText, components/ (loading/error/empty/title),
+                        # transition/ (shared-element plumbing), navigation/TopLevelDestination
+feature/characters/
+├── schemas/            # Room schema exports
+└── src/
+    ├── main/…/feature/characters/
+    │   ├── data/       # cache/, local/ (CharactersDatabase, DAO, entity), mapper/, paging/,
+    │   │               # remote/ (RickAndMortyApi, DTOs, CharactersCachePolicies), repository/
+    │   ├── domain/     # Models, repository contracts, use cases
+    │   ├── presentation/ # search/, detail/, favorites/, components/
+    │   ├── navigation/ # Destinations, tabs, charactersGraph()
+    │   └── di/         # Koin modules (charactersModule)
+    └── testFixtures/   # Fakes + builders shared by unit and instrumentation tests
 ```
 
 ---
@@ -228,7 +262,7 @@ On Windows, use `gradlew.bat` instead of `./gradlew`. No signing config is set u
 ## 🧪 Running Tests
 
 ```bash
-./gradlew testDebugUnitTest            # 110 JVM unit tests
+./gradlew testDebugUnitTest            # 115 JVM unit tests
 ./gradlew connectedDebugAndroidTest    # 28 Room DAO + Compose UI tests on a device/emulator
 ```
 

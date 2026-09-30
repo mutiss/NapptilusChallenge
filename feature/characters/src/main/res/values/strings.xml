@@ -1,0 +1,36 @@
+<resources>
+    <string name="nav_characters_title">Characters</string>
+    <string name="nav_favorites_title">Favorites</string>
+    <string name="search_placeholder">Search characters</string>
+    <string name="clear_search_description">Clear search</string>
+    <string name="search_error_generic">Something went wrong.</string>
+    <string name="search_empty_no_results">No characters found in this dimension.</string>
+    <string name="search_append_error">Couldn\'t load more characters.</string>
+    <string name="search_offline_banner">You\'re offline. Showing the characters already loaded; search and filters will be back when you reconnect.</string>
+    <string name="status_alive">Alive</string>
+    <string name="status_dead">Dead</string>
+    <string name="status_unknown">Unknown</string>
+    <string name="gender_female">Female</string>
+    <string name="gender_male">Male</string>
+    <string name="gender_genderless">Genderless</string>
+    <string name="gender_unknown">Unknown gender</string>
+    <string name="back_button_description">Go back</string>
+    <string name="character_image_description">Portrait of %1$s</string>
+    <string name="detail_species">Species</string>
+    <string name="detail_gender">Gender</string>
+    <string name="detail_origin">Origin</string>
+    <string name="detail_location">Last known location</string>
+    <string name="detail_type">Type</string>
+    <string name="detail_unknown_value">Unknown</string>
+    <string name="detail_episodes_section">Episodes · %1$d</string>
+    <string name="detail_season_header">Season %1$d</string>
+    <string name="detail_other_episodes_header">Other episodes</string>
+    <string name="detail_empty_episodes">This character doesn\'t appear in any episode.</string>
+    <string name="add_to_favorites_description">Add to favorites</string>
+    <string name="remove_from_favorites_description">Remove from favorites</string>
+    <string name="favorite_added">%1$s added to favorites</string>
+    <string name="favorite_removed">%1$s removed from favorites</string>
+    <string name="favorite_toggle_error">Couldn\'t update favorites. Please try again.</string>
+    <string name="favorites_empty">No favorites yet. Open a character and tap the heart to keep them here.</string>
+    <string name="favorites_error_generic">Couldn\'t load your favorites. Please try again.</string>
+</resources>

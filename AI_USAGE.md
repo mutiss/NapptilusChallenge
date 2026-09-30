@@ -8,6 +8,7 @@ This document discloses which AI assistants were used while building this projec
 - Generating some composables and previews, such as the empty/error states
 - Generating the `README.md` and `AI_USAGE.md` files
 - Auditing the codebase and docs before submission, suggesting and applying improvements
+- Multi-module migration (`:app`, `:feature:characters`, `:core:common`, `:core:network`, `:core:persistence`, `:core:ui`): reviewing the proposed structure, moving the code and reviewing each module's `build.gradle.kts`
 
 ## ChatGPT
 - Asking about and checking the HTTP caching strategy (OkHttp cache and interceptors)

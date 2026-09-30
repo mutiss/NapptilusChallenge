@@ -1,0 +1,11 @@
+<resources>
+    <string name="retry">Try again</string>
+
+    <string name="timed_out">The request timed out.</string>
+    <string name="no_internet">Looks like you\'re in a dimension without internet. Check your connection and try again.</string>
+    <string name="not_found">We searched the whole multiverse and couldn\'t find it.</string>
+    <string name="server_error">The Citadel servers are having a bad day. Please try again in a moment.</string>
+    <string name="unauthorized">You don\'t have permissions. Please try again.</string>
+    <string name="unknown_error">Something unexpected happened. Please try again.</string>
+    <string name="local_storage_error">Couldn\'t save your changes. Please try again.</string>
+</resources>

@@ -1,0 +1,14 @@
+package com.mutissx.napptilusrickandmorty.feature.characters.domain.repository
+
+import com.mutissx.napptilusrickandmorty.core.common.DataError
+import com.mutissx.napptilusrickandmorty.core.common.Result
+import com.mutissx.napptilusrickandmorty.feature.characters.domain.model.Character
+import kotlinx.coroutines.flow.Flow
+
+interface FavoritesRepository {
+    fun observeAll(): Flow<List<Character>>
+    fun observeIsFavorite(id: Int): Flow<Boolean>
+    suspend fun getFavorite(id: Int): Result<Character?, DataError.Local>
+    suspend fun add(character: Character): Result<Unit, DataError.Local>
+    suspend fun remove(id: Int): Result<Unit, DataError.Local>
+}

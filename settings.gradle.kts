@@ -24,4 +24,9 @@ dependencyResolutionManagement {
 
 rootProject.name = "NapptilusRickAndMorty"
 include(":app")
+include(":feature:characters")
+include(":core:common")
+include(":core:network")
+include(":core:persistence")
+include(":core:ui")
  
