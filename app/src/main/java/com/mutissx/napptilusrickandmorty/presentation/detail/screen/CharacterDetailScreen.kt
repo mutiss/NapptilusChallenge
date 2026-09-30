@@ -24,6 +24,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.mutissx.napptilusrickandmorty.presentation.components.ErrorView
 import com.mutissx.napptilusrickandmorty.presentation.components.LoadingView
 import com.mutissx.napptilusrickandmorty.presentation.components.TestTags
+import com.mutissx.napptilusrickandmorty.presentation.components.aboveSharedCharacterImage
 import com.mutissx.napptilusrickandmorty.presentation.detail.components.BackButton
 import com.mutissx.napptilusrickandmorty.presentation.detail.components.DetailContent
 import com.mutissx.napptilusrickandmorty.presentation.detail.components.FavoriteButton
@@ -98,6 +99,8 @@ fun CharacterDetailScreen(
                     .align(Alignment.TopStart)
                     .statusBarsPadding()
                     .padding(8.dp)
+                    // Otherwise the flying image covers it until the transition ends.
+                    .aboveSharedCharacterImage()
             )
         }
     }

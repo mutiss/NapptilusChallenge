@@ -47,11 +47,19 @@ fun CharacterCard(
                     character = character,
                     modifier = Modifier.fillMaxSize()
                 )
+                // Empty on purpose: the card has no gradient, but the hero's gradient needs a
+                // counterpart here so it travels with the image and fades in/out along the way.
+                Box(
+                    modifier = Modifier
+                        .matchParentSize()
+                        .sharedCharacterScrim(character.id)
+                )
                 StatusBadge(
                     status = character.status,
                     modifier = Modifier
                         .align(Alignment.TopStart)
                         .padding(8.dp)
+                        .sharedCharacterStatus(character.id)
                 )
             }
             Column(modifier = Modifier.padding(horizontal = 12.dp, vertical = 10.dp)) {
@@ -60,7 +68,8 @@ fun CharacterCard(
                     style = MaterialTheme.typography.titleSmall,
                     color = MaterialTheme.colorScheme.onSurface,
                     maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.sharedCharacterName(character.id)
                 )
                 Text(
                     text = character.species,
@@ -89,6 +98,11 @@ fun CharacterImage(
             .data(character.imageUrl)
             // Same key everywhere: the detail hero is served straight from the memory cache.
             .memoryCacheKey(character.imageUrl)
+            // AsyncImage can't query the memory cache until it knows its size, so a freshly
+            // composed card (e.g. the grid rebuilt after going back) would draw one grey
+            // placeholder frame before the cached bitmap. Using the cached bitmap as the
+            // placeholder removes that flash.
+            .placeholderMemoryCacheKey(character.imageUrl)
             .build(),
         contentDescription = null,
         contentScale = ContentScale.Crop,
