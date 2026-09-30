@@ -6,10 +6,12 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
+import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
@@ -22,20 +24,33 @@ import com.mutissx.napptilusrickandmorty.presentation.components.LoadingView
 import com.mutissx.napptilusrickandmorty.presentation.components.TestTags
 
 private val GRID_MIN_CELL_SIZE = 156.dp
+private val GRID_HORIZONTAL_PADDING = 20.dp
+private val GRID_VERTICAL_PADDING = 4.dp
 private const val CHARACTER_CONTENT_TYPE = "character"
 
 @Composable
 internal fun CharacterGrid(
     items: LazyPagingItems<Character>,
+    state: LazyGridState,
+    topPadding: Dp,
     onCharacterClick: (Int) -> Unit,
-    errorMessage: (Throwable) -> UiText
+    errorMessage: (Throwable) -> UiText,
+    modifier: Modifier = Modifier
 ) {
     LazyVerticalGrid(
         columns = GridCells.Adaptive(minSize = GRID_MIN_CELL_SIZE),
-        modifier = Modifier
+        state = state,
+        modifier = modifier
             .fillMaxSize()
             .testTag(TestTags.CHARACTER_GRID),
-        contentPadding = PaddingValues(horizontal = 20.dp, vertical = 4.dp),
+        // The top padding makes room for the header, which is drawn over the grid and scrolls
+        // away with it; cards then pass underneath the header's space.
+        contentPadding = PaddingValues(
+            start = GRID_HORIZONTAL_PADDING,
+            end = GRID_HORIZONTAL_PADDING,
+            top = topPadding + GRID_VERTICAL_PADDING,
+            bottom = GRID_VERTICAL_PADDING
+        ),
         horizontalArrangement = Arrangement.spacedBy(12.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {

@@ -101,6 +101,12 @@ and refreshes immediately. `distinctUntilChanged` avoids refetching for `"rick"`
 The grid keeps the previous results visible (with a thin progress bar) while a new filter loads,
 instead of flashing a full-screen spinner.
 
+The title, search field and chips form an **"enter always" collapsing header**: it scrolls away
+with the grid and slides back in on any upward scroll, so on small or landscape screens the grid
+gets the whole height while search stays one swipe away. Dragging the header itself scrolls the
+grid too, and it never hides when the results fit on screen or when showing the
+loading/empty/error states.
+
 **Offline**, a new search could only succeed if that exact filter had been cached before, so the
 screen doesn't pretend: the `ConnectivityObserver` (backed by a `ConnectivityManager`
 callback that requires a *validated* network) locks the search field and chips, keeps the
