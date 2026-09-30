@@ -12,9 +12,9 @@ import com.mutissx.napptilusrickandmorty.domain.usecase.GetCharacterDetailUseCas
 import com.mutissx.napptilusrickandmorty.domain.usecase.GetCharacterEpisodesUseCase
 import com.mutissx.napptilusrickandmorty.domain.usecase.ObserveIsFavoriteUseCase
 import com.mutissx.napptilusrickandmorty.domain.usecase.ToggleFavoriteUseCase
-import com.mutissx.napptilusrickandmorty.presentation.detail.screen.CharacterDetailUiState
-import com.mutissx.napptilusrickandmorty.presentation.detail.screen.CharacterSectionState
-import com.mutissx.napptilusrickandmorty.presentation.detail.screen.EpisodesState
+import com.mutissx.napptilusrickandmorty.presentation.detail.state.CharacterDetailUiState
+import com.mutissx.napptilusrickandmorty.presentation.detail.state.CharacterSectionState
+import com.mutissx.napptilusrickandmorty.presentation.detail.state.EpisodesState
 import com.mutissx.napptilusrickandmorty.presentation.navigation.Destination
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow

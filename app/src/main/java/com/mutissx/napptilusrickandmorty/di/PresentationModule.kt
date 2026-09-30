@@ -9,7 +9,7 @@ import org.koin.dsl.module
 val presentationModule = module {
 
     viewModel {
-        SearchViewModel(searchCharactersUseCase = get())
+        SearchViewModel(searchCharactersUseCase = get(), connectivityObserver = get())
     }
 
     viewModel {

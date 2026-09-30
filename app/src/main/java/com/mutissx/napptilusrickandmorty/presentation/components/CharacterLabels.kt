@@ -5,9 +5,9 @@ import androidx.compose.ui.graphics.Color
 import com.mutissx.napptilusrickandmorty.R
 import com.mutissx.napptilusrickandmorty.domain.model.CharacterGender
 import com.mutissx.napptilusrickandmorty.domain.model.CharacterStatus
-import com.mutissx.napptilusrickandmorty.ui.theme.StatusAlive
-import com.mutissx.napptilusrickandmorty.ui.theme.StatusDead
-import com.mutissx.napptilusrickandmorty.ui.theme.StatusUnknown
+import com.mutissx.napptilusrickandmorty.core.ui.theme.StatusAlive
+import com.mutissx.napptilusrickandmorty.core.ui.theme.StatusDead
+import com.mutissx.napptilusrickandmorty.core.ui.theme.StatusUnknown
 
 // Presentation-only knowledge about domain enums (labels, colors) lives here, so the domain
 // layer stays free of Android resources.

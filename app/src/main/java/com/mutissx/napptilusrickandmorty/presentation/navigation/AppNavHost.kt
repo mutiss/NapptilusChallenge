@@ -6,7 +6,6 @@ import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.SharedTransitionLayout
-import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.layout.PaddingValues
@@ -20,6 +19,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import com.mutissx.napptilusrickandmorty.presentation.components.LocalNavAnimatedVisibilityScope
 import com.mutissx.napptilusrickandmorty.presentation.components.LocalSharedTransitionScope
+import com.mutissx.napptilusrickandmorty.presentation.components.screenTransitionSpec
 import com.mutissx.napptilusrickandmorty.presentation.detail.screen.CharacterDetailScreen
 import com.mutissx.napptilusrickandmorty.presentation.detail.viewmodel.CharacterDetailViewModel
 import com.mutissx.napptilusrickandmorty.presentation.favorites.screen.FavoritesScreen
@@ -27,8 +27,6 @@ import com.mutissx.napptilusrickandmorty.presentation.favorites.viewmodel.Favori
 import com.mutissx.napptilusrickandmorty.presentation.search.screen.SearchScreen
 import com.mutissx.napptilusrickandmorty.presentation.search.viewmodel.SearchViewModel
 import org.koin.androidx.compose.koinViewModel
-
-private const val TRANSITION_DURATION_MS = 350
 
 @OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
@@ -45,10 +43,10 @@ fun AppNavHost(
             NavHost(
                 navController = navController,
                 startDestination = Destination.Characters.route,
-                enterTransition = { if (isTabSwitch()) EnterTransition.None else fadeIn(tween(TRANSITION_DURATION_MS)) },
-                exitTransition = { if (isTabSwitch()) ExitTransition.None else fadeOut(tween(TRANSITION_DURATION_MS)) },
-                popEnterTransition = { fadeIn(tween(TRANSITION_DURATION_MS)) },
-                popExitTransition = { fadeOut(tween(TRANSITION_DURATION_MS)) }
+                enterTransition = { if (isTabSwitch()) EnterTransition.None else fadeIn(screenTransitionSpec()) },
+                exitTransition = { if (isTabSwitch()) ExitTransition.None else fadeOut(screenTransitionSpec()) },
+                popEnterTransition = { fadeIn(screenTransitionSpec()) },
+                popExitTransition = { fadeOut(screenTransitionSpec()) }
             ) {
                 composable(Destination.Characters.route) {
                     ProvideNavAnimatedVisibilityScope {

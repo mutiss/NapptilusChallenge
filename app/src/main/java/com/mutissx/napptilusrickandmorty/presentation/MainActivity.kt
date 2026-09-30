@@ -16,7 +16,7 @@ import androidx.navigation.compose.rememberNavController
 import com.mutissx.napptilusrickandmorty.presentation.components.BottomBar
 import com.mutissx.napptilusrickandmorty.presentation.navigation.AppNavHost
 import com.mutissx.napptilusrickandmorty.presentation.navigation.bottomBarRoutes
-import com.mutissx.napptilusrickandmorty.ui.theme.NapptilusRickAndMortyTheme
+import com.mutissx.napptilusrickandmorty.core.ui.theme.NapptilusRickAndMortyTheme
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {

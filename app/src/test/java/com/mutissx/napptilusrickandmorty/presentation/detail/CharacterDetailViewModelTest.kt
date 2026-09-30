@@ -14,8 +14,8 @@ import com.mutissx.napptilusrickandmorty.fake.FakeCharacterRepository
 import com.mutissx.napptilusrickandmorty.fake.FakeFavoritesRepository
 import com.mutissx.napptilusrickandmorty.fake.aCharacter
 import com.mutissx.napptilusrickandmorty.fake.anEpisode
-import com.mutissx.napptilusrickandmorty.presentation.detail.screen.CharacterDetailUiState
-import com.mutissx.napptilusrickandmorty.presentation.detail.screen.EpisodesState
+import com.mutissx.napptilusrickandmorty.presentation.detail.state.CharacterDetailUiState
+import com.mutissx.napptilusrickandmorty.presentation.detail.state.EpisodesState
 import com.mutissx.napptilusrickandmorty.presentation.detail.viewmodel.CharacterDetailViewModel
 import com.mutissx.napptilusrickandmorty.presentation.navigation.Destination
 import com.mutissx.napptilusrickandmorty.util.MainDispatcherRule

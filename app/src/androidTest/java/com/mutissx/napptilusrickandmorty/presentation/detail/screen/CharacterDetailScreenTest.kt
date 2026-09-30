@@ -24,7 +24,7 @@ import com.mutissx.napptilusrickandmorty.fake.anEpisode
 import com.mutissx.napptilusrickandmorty.presentation.components.TestTags
 import com.mutissx.napptilusrickandmorty.presentation.detail.viewmodel.CharacterDetailViewModel
 import com.mutissx.napptilusrickandmorty.presentation.navigation.Destination
-import com.mutissx.napptilusrickandmorty.ui.theme.NapptilusRickAndMortyTheme
+import com.mutissx.napptilusrickandmorty.core.ui.theme.NapptilusRickAndMortyTheme
 import com.mutissx.napptilusrickandmorty.util.waitForTag
 import com.mutissx.napptilusrickandmorty.util.waitForText
 import kotlinx.coroutines.runBlocking

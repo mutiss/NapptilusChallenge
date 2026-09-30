@@ -5,15 +5,19 @@ import coil.ImageLoader
 import coil.ImageLoaderFactory
 import coil.disk.DiskCache
 import coil.memory.MemoryCache
+import com.mutissx.napptilusrickandmorty.di.IMAGE_HTTP_CLIENT
 import com.mutissx.napptilusrickandmorty.di.dataModule
 import com.mutissx.napptilusrickandmorty.di.databaseModule
 import com.mutissx.napptilusrickandmorty.di.domainModule
 import com.mutissx.napptilusrickandmorty.di.networkModule
 import com.mutissx.napptilusrickandmorty.di.presentationModule
+import okhttp3.OkHttpClient
+import org.koin.android.ext.android.get
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
 import org.koin.core.context.startKoin
 import org.koin.core.logger.Level
+import org.koin.core.qualifier.named
 
 private const val IMAGE_CACHE_DIR = "rick_and_morty_image_cache"
 private const val IMAGE_MEMORY_CACHE_PERCENT = 0.25
@@ -43,6 +47,8 @@ class RickAndMortyApp : Application(), ImageLoaderFactory {
      */
     override fun newImageLoader(): ImageLoader =
         ImageLoader.Builder(this)
+            // Retries avatars rejected by the API's rate limit (429) while scrolling fast.
+            .okHttpClient { get<OkHttpClient>(named(IMAGE_HTTP_CLIENT)) }
             .memoryCache {
                 MemoryCache.Builder(this)
                     .maxSizePercent(IMAGE_MEMORY_CACHE_PERCENT)

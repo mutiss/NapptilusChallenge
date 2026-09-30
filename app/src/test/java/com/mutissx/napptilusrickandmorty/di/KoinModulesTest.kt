@@ -19,6 +19,8 @@ import org.koin.test.verify.verify
  *   ViewModel's `viewModel { }` block), not by a module binding.
  * - `HttpLoggingInterceptor.Logger` belongs to a constructor overload we never call.
  * - `Int` is the optional max size of CharacterMemoryCache, left at its default.
+ * - `Long` and `Function1` are RateLimitRetryInterceptor's optional max wait and sleep function
+ *   (the latter only swapped in tests), both left at their defaults.
  */
 @OptIn(KoinExperimentalAPI::class)
 class KoinModulesTest {
@@ -31,7 +33,9 @@ class KoinModulesTest {
             extraTypes = listOf(
                 SavedStateHandle::class,
                 HttpLoggingInterceptor.Logger::class,
-                Int::class
+                Int::class,
+                Long::class,
+                Function1::class
             )
         )
     }

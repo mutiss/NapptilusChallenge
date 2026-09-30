@@ -8,6 +8,7 @@
     <string name="search_error_generic">Something went wrong.</string>
     <string name="search_empty_no_results">No characters found in this dimension.</string>
     <string name="search_append_error">Couldn\'t load more characters.</string>
+    <string name="search_offline_banner">You\'re offline. Showing the characters already loaded; search and filters will be back when you reconnect.</string>
 
     <string name="status_alive">Alive</string>
     <string name="status_dead">Dead</string>
